@@ -1,0 +1,37 @@
+---
+title: dwctaxon, an R package for editing and validating taxonomic data in Darwin Core format
+---
+
+## Summary
+
+The dwctaxon R package provides functions to edit and validate taxonomic data in compliance with the widely used Darwin Core (DWC) standard for biological data.
+dwctaxon automates several data editing steps, thereby simplifying workflows and decreasing the chance of human-generated data entry errors.
+Furthermore, it conducts automated checks to validate taxonomic datasets, thereby alerting database maintainers to problems as soon as possible.
+dwctaxon will accelerate the generation and maintenance of taxonomic data, a critical part of the effort to document and conserve earth's biodiversity.
+
+## Statement of need
+
+Taxonomic names, or taxa, are a fundamental unit of biodiversity.
+Darwin Core (DWC) is a data standard that specifies how taxa, amongst other biological data, should be formatted.
+Darwin Core has been widely adopted by many databases (e.g., GBIF, Catalog of Life, World Flora Online) and provides a common format for databases to interface with each other. 
+
+Taxonomic data fundamentally represent scientific hypotheses.
+As such, taxonomic data are continuously growing as new species are discovered, old taxonomic concepts are revised, etc.
+These changes can be complicated.
+For example, changing the status of one name to the synonym of another could potentially involve updating many other names if they are synonyms of the first.
+Because of these properties, maintaining a taxonomic database in compliance with DWC can be onerous and error prone if done by hand.
+There is therefore a need for software to automate entry and validation of DWC taxonomic data.
+
+The dwctaxon R package addresses this need.
+dwctaxon can be used to edit databases by adding new rows or modifying existing data.
+dwctaxon automatically updates synonymy, thereby decreasing errors and simplifying workflow.
+Furthermore, it runs >15 automated checks to validate that taxonomic data are in compliance with DWC and can be used for taxonomic name resolution.
+We anticipate dwctaxon will reduce friction in maintaining taxonomic databases in the face of frequent updates, and be used from smaller projects (e.g., local biodiversity surveys) to large, public databases (e.g., GBIF).
+
+## Features
+
+### Data editing
+
+### Data validation
+
+## Example: GBIF
