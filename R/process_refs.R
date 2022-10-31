@@ -8,13 +8,9 @@ library(rmdref)
 # or created as a symlink like this:
 # cd _targets/user/data_raw/
 # ln -s ~/Dropbox/bibliography/main_library.yaml
-filter_refs_yaml(
-  rmd_file = "ms.Qmd",
-  yaml_in = "main_library.yaml",
-  yaml_out = "references.yaml", silent = FALSE)
 
-# Write out 'aux' file with citation keys to make collection in Zotero
-# so reference data are easier to work with.
+# Write out 'aux' file with citation keys to make collection in Zotero,
+# export to here as bib file.
 # The collection can be made with the betterbibtex for Zotero plugin:
 # https://retorque.re/zotero-better-bibtex/citing/aux-scanner/
 extract_citations("ms.Qmd") %>%
