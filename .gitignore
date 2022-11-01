@@ -1,3 +1,7 @@
 *.pdf
 *.jats
 _targets
+ms.md
+paper.md
+working
+main_library.yaml
