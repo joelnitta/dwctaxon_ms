@@ -29,7 +29,7 @@ bibliography: references.bib
 
 ## Summary
 
-The `dwctaxon` R package provides functions to edit and validate taxonomic data in compliance with the widely used Darwin Core (DWC) standard [@Wieczorek2012] for biodiversity data.
+The `dwctaxon` R package provides functions to edit and validate taxonomic data in compliance with the widely used Darwin Core (DwC) standard [@Wieczorek2012] for biodiversity data.
 `dwctaxon` automates several data editing steps, thereby simplifying workflows and decreasing the chance of human-generated data entry errors.
 Furthermore, it conducts automated checks to validate taxonomic datasets, thereby alerting database maintainers to problems as soon as possible.
 `dwctaxon` will accelerate the generation and maintenance of taxonomic data, a critical part of the effort to document and conserve earth's biodiversity.
@@ -37,20 +37,20 @@ Furthermore, it conducts automated checks to validate taxonomic datasets, thereb
 ## Statement of need
 
 Taxonomic names, or taxa, are a fundamental unit of biodiversity [@Janzen2003].
-Darwin Core (DWC) is a data standard for taxonomic and other biodiversity data, and provides a common format for biodiversity databases to interface with each other [@Wieczorek2012].
+Darwin Core (DwC) is a data standard for taxonomic and other biodiversity data, and provides a common format for biodiversity databases to interface with each other [@Wieczorek2012].
 Darwin Core has been widely adopted by many databases (e.g., GBIF, Catalog of Life, World Flora Online).
 
 Taxa fundamentally represent scientific hypotheses [@Sluys2013].
 As such, taxonomic data are continuously being updated as new species are discovered, old taxonomic concepts are revised, etc.
 Such taxonomic changes can be complicated.
 For example, changing the status of one name to the synonym of another could potentially involve modifying many other names if they are synonyms of the first.
-Because of these properties, maintaining a taxonomic database in compliance with DWC can be onerous and error prone if done by hand.
-There is therefore a need for software to automate entry and validation of DWC taxonomic data.
+Because of these properties, maintaining a taxonomic database in compliance with DwC can be onerous and error prone if done by hand.
+There is therefore a need for software to automate entry and validation of DwC taxonomic data.
 
 The `dwctaxon` R package addresses this need.
-`dwctaxon` can be used to edit DWC taxonomic databases by adding new rows or modifying existing data in compliance with DWC.
+`dwctaxon` can be used to edit DwC taxonomic databases by adding new rows or modifying existing data in compliance with DwC.
 `dwctaxon` automatically updates synonymy, thereby decreasing errors and simplifying workflow.
-Furthermore, it runs >15 automated checks to validate that taxonomic data are in compliance with DWC and can be used for taxonomic name resolution.
+Furthermore, it runs >15 automated checks to validate that taxonomic data are in compliance with DwC and can be used for taxonomic name resolution.
 We anticipate `dwctaxon` will reduce friction in maintaining taxonomic databases in the face of frequent updates, and be used from smaller projects (e.g., local biodiversity surveys) to large, public databases (e.g., GBIF).
 
 ## Features
@@ -58,11 +58,11 @@ We anticipate `dwctaxon` will reduce friction in maintaining taxonomic databases
 ### Data editing
 
 `dwctaxon` offers several functions for entering new data or manipulating existing data.
-All functions are designed to maximize compliance with DWC.
+All functions are designed to maximize compliance with DwC.
 The simplest is `dct_add_row()`, which inserts a new row.
 
-`dct_change_status()` modifies the taxonomic status (DWC `taxonomicStatus` term) of an existing row.
-Although DWC does not maintain a standardized list of allowed values for `taxonomicStatus`, these typically include values like "accepted", "synonym", "invalid", etc.
+`dct_change_status()` modifies the taxonomic status (DwC `taxonomicStatus` term) of an existing row.
+Although DwC does not maintain a standardized list of allowed values for `taxonomicStatus`, these typically include values like "accepted", "synonym", "invalid", etc.
 Changing a name from the status of accepted to synonym can involve several related modifications if the original name included one or more synonyms, as these also need to be updated to point to the new accepted name.
 `dct_change_status()` automatically modifies such synonyms.
 This can reduce error since a given name may include a large number of synonyms that would otherwise be onerous to edit.
@@ -78,9 +78,9 @@ Furthermore, the data editing functions can also use a data frame or vector to p
 
 ### Data validation
 
-`dct_validate()` carries out automated data validation to ensure that the taxonomic database is in compliance with DWC.
-At a minimum, this involves checking that the names of columns (terms) match those used by DWC.
-While DWC makes recommendations for values of some terms, for most of these it does not specify the actual values allowed.
+`dct_validate()` carries out automated data validation to ensure that the taxonomic database is in compliance with DwC.
+At a minimum, this involves checking that the names of columns (terms) match those used by DwC.
+While DwC makes recommendations for values of some terms, for most of these it does not specify the actual values allowed.
 However, it is typical for taxonomic databases to make assumptions about the data based on their values.
 For example, we would expect that every synonym should be linked to to an accepted name.
 Therefore, validation in `dwctaxon` is flexible, allowing the user to select from multiple checks.
@@ -157,13 +157,13 @@ Therefore, there are likely to be few situations in practice where `dwctaxon` ca
 
 ## Similar software
 
-The only similar tool we are aware of is the GBIF data validator (<https://www.gbif.org/tools/data-validator>), an online system for validating data in DWC format.
+The only similar tool we are aware of is the GBIF data validator (<https://www.gbif.org/tools/data-validator>), an online system for validating data in DwC format.
 However, the GBIF data validator is not available for use as a local program and is limited to input sizes of 100 mb.
-It does not conduct editing of DWC compliant data, nor are we aware of any other software that does so.
+It does not conduct editing of DwC compliant data, nor are we aware of any other software that does so.
 
 ## Conclusion
 
-With its automated yet flexible interface to update and validate taxonomic data in compliance with DWC, `dwctaxon` fills a critical gap in taxonomic data software.
+With its automated yet flexible interface to update and validate taxonomic data in compliance with DwC, `dwctaxon` fills a critical gap in taxonomic data software.
 We hope it will become widely used and support the taxonomic infrastructure that undergirds efforts to document and preserve biodiversity.
 
 ## References
