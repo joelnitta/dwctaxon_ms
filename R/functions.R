@@ -25,6 +25,7 @@ clean_refs <- function(in_file, out_file) {
   system(glue::glue("sed -i '' -e 's/ / /g' {out_file}"))
   system(glue::glue("sed -i '' -e 's/“/\"/g' {out_file}"))
   system(glue::glue("sed -i '' -e 's/”/\"/g' {out_file}"))
+  system(glue::glue("sed -i '' -e 's/’/\'/g' {out_file}"))
   fs::file_delete(tempfile)
   out_file
 }
