@@ -64,11 +64,10 @@ Taxonomic names, or taxa, are a fundamental unit of biodiversity [@Janzen2003].
 Darwin Core (DwC) is a data standard for taxonomic and other biodiversity data, and provides a common format for biodiversity databases to interface with each other [@Wieczorek2012].
 Darwin Core has been widely adopted by many databases (e.g., the [Global Biodiversity Information Facility (GBIF)](https://www.gbif.org), [Catalog of Life](https://www.catalogueoflife.org), and [World Flora Online](https://www.worldfloraonline.org)).
 
-Taxa fundamentally represent scientific hypotheses [@Sluys2013].
-As such, taxonomic data are continuously being updated due to, for example, discovery of new species or revision of existing taxonomic concepts.
+Taxonomic data are frequently being updated due to, for example, discovery of new species or revision of existing taxonomic concepts.
 These taxonomic changes can be complicated.
 For example, changing the status of one name to the synonym of another could potentially involve modifying many other names if they are synonyms of the first.
-Because of these properties, maintaining a taxonomic database in compliance with DwC can be onerous and error prone if done by hand, especially if the database is large.
+Because of these properties, maintaining a taxonomic database in compliance with DwC can be onerous and error-prone if done by hand, especially if the database is large.
 There is therefore a need for software to automate entry and validation of DwC taxonomic data.
 
 The `dwctaxon` R package addresses this need.
@@ -131,7 +130,7 @@ Furthermore, the data editing functions can also use a data frame or vector to p
 At a minimum, this involves checking that the names of columns (terms) match those used by DwC.
 While DwC makes recommendations for values of some terms, for most of these it does not specify the actual values allowed.
 However, it is typical for taxonomic databases to make assumptions about the data based on their values.
-For example, we would expect that every synonym should be linked to to an accepted name.
+For example, we would expect that every synonym should be linked to an accepted name.
 Therefore, validation in `dwctaxon` is flexible, allowing the user to select from multiple checks.
 
 Validation checks in `dwctaxon` include the following (each is a logical argument of `dct_validate()`):
@@ -143,7 +142,7 @@ Validation checks in `dwctaxon` include the following (each is a logical argumen
 
 - `check_mapping`: Check that all values of `acceptedNameUsageID` map to the `taxonID` of an existing name.
 
-- `check_mapping_strict`: Check that mapping of names follow expectations based on their taxonomic status (e.g., synonyms must map to accepted names, accepted names cannot have an `acceptedNameUsageID`, etc.).
+- `check_mapping_strict`: Check that mapping of names follows expectations based on their taxonomic status (e.g., synonyms must map to accepted names, accepted names cannot have an `acceptedNameUsageID`, etc.).
 
 - `check_sci_name`: Check that all instances of `scientificName` are non-missing and unique.
 
@@ -151,7 +150,7 @@ Validation checks in `dwctaxon` include the following (each is a logical argumen
 
 - `check_col_names`: Check that all column names are valid Darwin Core terms.
 
-The are multiple options for the output of `dct_validate()`:
+There are multiple options for the output of `dct_validate()`:
 
 - If the `on_fail` argument is set to `"error"`, an error will be raised and computation stopped at the first failing check.
 
@@ -299,7 +298,7 @@ Code to generate this manuscript is available at <https://github.com/joelnitta/d
 ## Acknowledgements
 
 Members of the Iwasaki Lab (The University of Tokyo) provided helpful comments while the package was in development.
-This research supported in part by Japan Society for the Promotion of Science (Kakenhi) grant no. 16H06279, 22H04925 and 22K15171.
+This was research supported in part by Japan Society for the Promotion of Science (Kakenhi) grant no. 16H06279, 22H04925 and 22K15171.
 Thanks to Collin Schwantes and Stephen Formel for reviewing the code and Noam Ross for handling the code review process at ROpenSci.
 
 ## References
