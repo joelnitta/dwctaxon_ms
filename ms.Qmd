@@ -55,7 +55,7 @@ The `dwctaxon` R package provides functions to edit and validate taxonomic data 
 `dwctaxon` automates several data editing steps, thereby simplifying workflows and decreasing the chance of human-generated data entry errors.
 Furthermore, it conducts automated checks to validate taxonomic datasets, thereby alerting database maintainers to problems as soon as possible.
 `dwctaxon` will accelerate the generation and maintenance of taxonomic data, a critical part of the effort to document and conserve earth's biodiversity.
-`dwctaxon` has passed [code review](https://github.com/ropensci/software-review/issues/574) at [ROpenSci](https://ropensci.org/).
+`dwctaxon` has passed [code review](https://github.com/ropensci/software-review/issues/574) at [rOpenSci](https://ropensci.org/).
 Complete documentation is available at <https://docs.ropensci.org/dwctaxon> and source code is available at <https://github.com/ropensci/dwctaxon>.
 
 ## Statement of need
@@ -299,6 +299,6 @@ Code to generate this manuscript is available at <https://github.com/joelnitta/d
 
 Members of the Iwasaki Lab (The University of Tokyo) provided helpful comments while the package was in development.
 This was research supported in part by Japan Society for the Promotion of Science (Kakenhi) grant no. 16H06279, 22H04925 and 22K15171.
-Thanks to Collin Schwantes and Stephen Formel for reviewing the code and Noam Ross for handling the code review process at ROpenSci.
+Thanks to Collin Schwantes and Stephen Formel for reviewing the code and Noam Ross for handling the code review process at rOpenSci.
 
 ## References
