@@ -8,6 +8,7 @@ editor_options:
     canonical: true
 ---
 
+<!-- YAML header for JOSS paper -->
 \-\-\-
 title: dwctaxon, an R package for editing and validating taxonomic data in Darwin Core format
 tags:
@@ -20,12 +21,33 @@ authors:
 \ \ \ \ affiliation: 1
 \ \ - name: Wataru Iwasaki
 \ \ \ \ orcid: 0000-0002-9169-9245
-\ \ \ \ affiliation: 1
+\ \ \ \ affiliation: "2, 3, 4"
 affiliations:
-\ \ - name: The University of Tokyo, Japan
-date: 31 October 2022
+\ \ - name: Graduate School of Global and Transdisciplinary Studies, Chiba University, Japan
+\ \ \ \ index: 1
+\ \ - name: Department of Integrated Biosciences, Graduate School of Frontier Sciences, The University of Tokyo, Chiba, Japan
+\ \ \ \ index: 2
+\ \ - name: Department of Biological Sciences, Graduate School of Science, The University of Tokyo, Tokyo, Japan
+\ \ \ \ index: 3
+\ \ - name: Atmosphere and Ocean Research Institute, The University of Tokyo, Chiba, Japan
+\ \ \ \ index: 4
+date: 15 December 2023
 bibliography: references.bib
 \-\-\-
+
+```{r}
+#| label: load
+#| echo: false
+#| include: false
+# Load packages and data from targets pipeline
+suppressPackageStartupMessages({
+  library(targets)
+  library(tidyverse)
+  library(scales)
+  })
+tar_load(gbif_backbone_size)
+tar_load(gbif_check)
+```
 
 ## Summary
 
@@ -33,18 +55,20 @@ The `dwctaxon` R package provides functions to edit and validate taxonomic data 
 `dwctaxon` automates several data editing steps, thereby simplifying workflows and decreasing the chance of human-generated data entry errors.
 Furthermore, it conducts automated checks to validate taxonomic datasets, thereby alerting database maintainers to problems as soon as possible.
 `dwctaxon` will accelerate the generation and maintenance of taxonomic data, a critical part of the effort to document and conserve earth's biodiversity.
+`dwctaxon` has passed [code review](https://github.com/ropensci/software-review/issues/574) at [ROpenSci](https://ropensci.org/).
+Complete documentation is available at <https://docs.ropensci.org/dwctaxon/>.
 
 ## Statement of need
 
 Taxonomic names, or taxa, are a fundamental unit of biodiversity [@Janzen2003].
 Darwin Core (DwC) is a data standard for taxonomic and other biodiversity data, and provides a common format for biodiversity databases to interface with each other [@Wieczorek2012].
-Darwin Core has been widely adopted by many databases (e.g., GBIF, Catalog of Life, World Flora Online).
+Darwin Core has been widely adopted by many databases (e.g., the [Global Biodiversity Information Facility (GBIF)](https://www.gbif.org), [Catalog of Life](https://www.catalogueoflife.org), and [World Flora Online](https://www.worldfloraonline.org)).
 
 Taxa fundamentally represent scientific hypotheses [@Sluys2013].
-As such, taxonomic data are continuously being updated as new species are discovered, old taxonomic concepts are revised, etc.
-Such taxonomic changes can be complicated.
+As such, taxonomic data are continuously being updated due to, for example, discovery of new species or revision of existing taxonomic concepts.
+These taxonomic changes can be complicated.
 For example, changing the status of one name to the synonym of another could potentially involve modifying many other names if they are synonyms of the first.
-Because of these properties, maintaining a taxonomic database in compliance with DwC can be onerous and error prone if done by hand.
+Because of these properties, maintaining a taxonomic database in compliance with DwC can be onerous and error prone if done by hand, especially if the database is large.
 There is therefore a need for software to automate entry and validation of DwC taxonomic data.
 
 The `dwctaxon` R package addresses this need.
@@ -53,24 +77,49 @@ The `dwctaxon` R package addresses this need.
 Furthermore, it runs >15 automated checks to validate that taxonomic data are in compliance with DwC and can be used for taxonomic name resolution.
 We anticipate `dwctaxon` will reduce friction in maintaining taxonomic databases in the face of frequent updates, and be used from smaller projects (e.g., local biodiversity surveys) to large, public databases (e.g., GBIF).
 
+## Installation
+
+The stable version can be installed from [the Comprehensive R Archive Network (CRAN)](https://cran.r-project.org/package=dwctaxon):
+
+```{r}
+#| label: install-cran
+#| eval: false
+install.packages("dwctaxon")
+```
+
+The development version can be installed from [r-universe](https://ropensci.r-universe.dev/dwctaxon):
+
+``` r
+options(repos = c(
+  ropensci = "https://ropensci.r-universe.dev/", 
+  CRAN = "https://cran.rstudio.com/"
+))
+install.packages("dwctaxon", dep = TRUE)
+```
+
 ## Features
 
 ### Data editing
 
 `dwctaxon` offers several functions for entering new data or manipulating existing data.
 All functions are designed to maximize compliance with DwC.
-The simplest is `dct_add_row()`, which inserts a new row.
 
-`dct_change_status()` modifies the taxonomic status (DwC `taxonomicStatus` term) of an existing row.
+`dct_add_row()` is the simplest editing function, and appends a new row to the data.
+It will automatically generate a unique identifier (`taxonID`) for the row if one is not provided by the user, and only allows entering values for official DwC taxon columns (terms).
+
+`dct_modify_row()` modifies the contents of an existing row, allowing the user to assign new values for any DwC terms (such as `scientificName`, `acceptedNameUsage`, `taxonomicStatus`, etc.).
+For a complete list of DwC terms, see the [Darwin Core Quick Reference Guide](https://dwc.tdwg.org/terms/#taxon).
 Although DwC does not maintain a standardized list of allowed values for `taxonomicStatus`, these typically include values like "accepted", "synonym", "invalid", etc.
 Changing a name from the status of accepted to synonym can involve several related modifications if the original name included one or more synonyms, as these also need to be updated to point to the new accepted name.
-`dct_change_status()` automatically modifies such synonyms.
+`dct_modify_row()` automatically modifies such synonyms.
 This can reduce error since a given name may include a large number of synonyms that would otherwise be onerous to edit.
 
-`dct_switch_status()` provides a shortcut for a common taxonomic change: swapping accepted/synonym status of two names.
-For example, Species A is a synonym of Species B but in the new taxonomic scheme, we want Species A to be a synonym of Species B.
-`dct_switch_status()` carries out this procedure.
-Like `dct_change_status()`, it automatically re-maps any other synonyms that were formerly associated with the original accepted name.
+`dct_fill_col()` automatically fills in the values of one column by matching from another pair of columns.
+This is needed because the DwC format includes some columns that have very closely related data, which may be difficult to manually keep up to date (here called "term-termID pairs").
+For example, there are two columns that specify the accepted name for synonyms: `acceptedNameUsage` (the actual accepted scientific name) and `acceptedNameUsageID` (the unique identifier, or `taxonID`, of the accepted name).
+The reason for having both columns is that since `taxonID` is expected to be unique, it is more accurate as a reference value.
+However, due to the formatting of `taxonID` (for example, a typical value may be a series of numbers and letters like `36HMM`), it is difficult for a human to immediately know what scientific name that `taxonID` refers to; hence it is also helpful to have the name itself available alongside.
+`dct_fill_col()` can be used to automatically fill in such term-termID pairs, which is expected to greatly decrease risk of data entry error.
 
 The default output of all functions is a tibble (data frame).
 This means that a series of changes can be applied using the pipe operator (`|>` or `%>%`).
@@ -104,19 +153,145 @@ Validation checks in `dwctaxon` include the following (each is a logical argumen
 
 The are multiple options for the output of `dct_validate()`:
 
-- If the `on_fail` argument is set to `error`, an error will be raised and computation stopped at the first failing check.
+- If the `on_fail` argument is set to `"error"`, an error will be raised and computation stopped at the first failing check.
 
-- If `on_fail` is set to `summary`, if any check fails a summary table (tibble) will be returning describing failures for all checks, with a warning.
+- If `on_fail` is set to `"summary"`, if any check fails a summary table (tibble) will be returning describing failures for all checks, with a warning.
 
-- If the `on_success` argument is set to `data` and all checks pass, the original data will be returned.
+- If the `on_success` argument is set to `"data"` and all checks pass, the original data will be returned.
 
-- If `on_success` is set to `logical` and all checks pass, a logical value of `TRUE` will be returned.
+- If `on_success` is set to `"logical"` and all checks pass, a logical value of `TRUE` will be returned.
 
 Each check can also be carried out as a separate function (e.g., `dct_check_taxon_id`), with the same output options.
 
 ## Example usage
 
-We demonstrate usage of `dwctaxon` with the GBIF backbone taxonomy.
+First, we create a small fictional dataset in the DwC format (DwC possibly includes many more columns, but we only use a subset here) for demonstration using the `tibble` package:
+
+```{r}
+#| label: load-pkg-data
+#| message: false
+library(tibble)
+library(dwctaxon)
+
+example_data <- tribble(
+  ~taxonID, ~acceptedNameUsageID, ~taxonomicStatus, ~taxonRank, ~scientificName,
+  "id1", NA, "accepted", "species", "Fooius barus",
+  "id2", "id1", "synonym", "species", "Fooius wizum",
+  "id3", NA, "accepted", "species", "Bazius quxus",
+  "id4", NA, "accepted", "species", "Bazius buzbar"
+)
+```
+
+### Data editing
+
+```{r}
+#| label: dct-options
+#| echo: false
+
+# Store existing settings
+old_settings <- dct_options()
+
+# turn off time stamp
+dct_options(stamp_modified = FALSE)
+```
+
+`dct_add_row()` adds one or more rows.
+If the user does not provide a value for `taxonID`, one is generated from the hash of the scientific name, such that it should be unique (as long as the scientific name is unique).
+
+```{r add-row}
+example_data |>
+  dct_add_row(
+    scientificName = "Bazius qixis",
+    taxonomicStatus = "accepted",
+    taxonRank = "species"
+  )
+```
+
+`dct_modify_row()` modifies a row, automatically re-mapping synonyms if needed.
+Here, we change *Bazius buzbar* to be a synonym of *Bazius qixis* (note that `acceptedNameUsageID` is automatically populated):
+
+```{r modify-row}
+example_data |>
+  dct_modify_row(
+    scientificName = "Bazius buzbar",
+    taxonomicStatus = "synonym",
+    acceptedNameUsage = "Bazius quxus"
+  )
+```
+
+`dct_fill_col()` fills in values for columns that have term-termID pairs.
+Here, we demonstrate filling in `acceptedNameUsage` (the resulting values do not appear in the manuscript due to width restrictions, but can be seen by running the code interactively).
+
+```{r fill-col}
+example_data |>
+  dct_fill_col(
+    fill_to = "acceptedNameUsage",
+    fill_from = "scientificName",
+    match_to = "taxonID",
+    match_from = "acceptedNameUsageID"
+  )
+```
+
+### Data validation
+
+The `example_data` dataset is already well-formatted, so it will pass validation:
+
+```{r validate-pass}
+# Default behavior is to return the original dataset if checks pass
+# For this example, return TRUE instead
+dct_validate(example_data, on_success = "logical")
+```
+
+For demonstration purposes, we create a dataset with duplicated and erroneous entries:
+
+```{r make-dirty-filmies}
+# Duplicate some data
+bad_data <- rbind(head(example_data), head(example_data, 2))
+# Replace some values of `acceptedNameUsageID` with random letters
+bad_data$acceptedNameUsageID[sample(seq_along(bad_data), 3)] <- sample(letters, 3)
+```
+
+By default, `dct_validate()` will stop with an error on the first check that fails:
+
+```{r validate-error, error = TRUE}
+dct_validate(bad_data)
+```
+
+But it may be useful to get an overview of all the checks that failed.
+This can be done by setting `on_fail` to `"summary"`:
+
+```{r validate-summary-show, eval = FALSE, echo = TRUE}
+dct_validate(bad_data, on_fail = "summary")
+```
+
+```{r validate-summary-print, echo = FALSE, message = FALSE}
+dct_validate(bad_data, on_fail = "summary") |>
+  dplyr::mutate(error = stringr::str_trunc(error, 40, "right"))
+```
+
+### Piping
+
+All the functions in dwctaxon take a dataframe as their first argument and return a dataframe by default, so they are "pipe-friendly" and can be chained together:
+
+```{r pipe}
+example_data |>
+  dct_modify_row(
+    taxonID = "id2",
+    taxonomicStatus = "accepted"
+  ) |>
+  dct_add_row(
+    scientificName = "Bazius qixis",
+    taxonomicStatus = "accepted"
+  ) |>
+  dct_validate()
+```
+
+It's often a good idea to include `dct_validate()` at the end of a chain to make sure the modified taxonomic database is still correctly formatted.
+
+### Real-world example
+
+The small examples shown above may not reflect the performance of `dwctaxon` when applied to larger "real-world" datasets.
+Therefore, in this section we demonstrate usage of `dwctaxon` with the GBIF backbone taxonomy, which is to our knowledge the largest single database in DwC format currently available online, with `r number(gbif_backbone_size, big.mark = ",")` rows (names) in the most recent release (2023-08-28) as of writing.
 
 The taxonomy is loaded into R with `readr::read_tsv()`, then validated with `dct_validate()`.
 ```{r}
@@ -135,25 +310,87 @@ gbif_backbone <- readr::read_tsv("backbone/Taxon.tsv")
 # Validate taxonomy
 gbif_check <- dct_validate(
   gbif_backbone,
-  # - set valid taxonomicStatus as used by GBIF
+  # - set valid values for taxonomicStatus as used by GBIF
   valid_tax_status = paste(
     "accepted, doubtful, heterotypic synonym,",
-    "homotypic synonym, proparte synonym,",
+    "homotypic synonym,", "proparte synonym,",
     "synonym"),
   on_fail = "summary")
 ```
 
-This reveals a large number of potential issues with the data.
-We see that GBIF uses a non-standard column, `canonicalName`.
-_ scientific names are detected that have duplicates.
-_ names are detected that have an `acceptedNameUsageID` that does not map any `taxonID`.
-It is unknown how these issues currently affect usage of GBIF.
+```{r}
+#| label: demo-gbif-hide
+#| echo: false
+warning(
+  targets::tar_meta(fields = warnings, complete_only = TRUE)$warnings %>%
+  str_replace_all("\\.\\. ", ". ") %>%
+  str_split("\\. ") %>%
+  magrittr::extract2(1) %>%
+  paste0(".") %>%
+  map_chr(~str_wrap(., width = 70)) %>%
+  paste(collapse = "\n")
+)
+```
+
+This reveals a large number of potential issues with the data, as shown by the warnings.
+Furthermore, since all potential problems with the data have been saved to a dataframe by setting `on_fail = "summary"`, we can dig into the output for a more detailed view.
+Here, we demonstrate this using the tidyverse:
+
+```{r}
+#| label: error-count-show
+#| message: false
+library(tidyverse)
+gbif_check %>%
+  count(error)
+```
+
+```{r}
+#| label: error-count-hide
+#| echo: false
+gbif_check_count <-
+  gbif_check %>%
+  count(error)
+
+n_err <- function(match_text) {
+  n <- gbif_check_count %>%
+    filter(str_detect(error, match_text)) %>%
+    pull(n) %>%
+    sum()
+  stopifnot(length(n) == 1)
+  if (n > 10) {
+    return(scales::number(n, big.mark = ","))
+  } else {
+    return(as.character(english::english(n)))
+  }
+}
+```
+
+We see that GBIF uses `r n_err("Invalid column names")` non-standard column, `canonicalName`.
+`r n_err("scientificName detected with duplicated")` scientific names have duplicated values.
+`r n_err("acceptedNameUsageID|originalNameUsageID|parentNameUsageID")` names have a value for `acceptedNameUsageID`, `originalNameUsageID`, or `parentNameUsageID` that does not map to any `taxonID`.
+It should be noted that these results do not necessarily indicate that the GBIF database is deficit in practice.
+It is up to the database maintainer to interpret the results of the validation and decide upon the appropriate course of action, if any.
+
+Another real-world example using the Database of Vascular Plants of Canada [@Desmet2013] is available on the `dwctaxon` [documentation website](https://docs.ropensci.org/dwctaxon/articles/real-data.html).
 
 ## Caveats
 
+```{r}
+#| label: caveats
+#| echo: false
+
+times <- targets::tar_meta(fields = seconds)
+check_time <-
+  times %>%
+  filter(name == "gbif_check") %>%
+  pull(seconds) %>%
+  round(1) %>%
+  paste("seconds")
+```
+
 One potential limitation of data validation that relies on in-memory data loaded into R (via `load.csv()` etc.) is that extremely large databases could exceed R's memory capacity.
-However, our demonstration with GBIF data shows that `dwctaxon` functions can be carried out in a reasonable amount of time (in this case, ca. 20 minutes on an iMac) on a ca. 2 Gb database that includes a large portion of all scientific names currently in use.
-Therefore, there are likely to be few situations in practice where `dwctaxon` cannot be used due to database size.
+However, our demonstration with GBIF data shows that `dwctaxon` functions can be carried out in a reasonable amount of time (in this case, `r check_time` on an iMac) on a ca. 2 Gb database that includes a large portion of all scientific names currently in use.
+Therefore, there are likely to be few situations where `dwctaxon` cannot be used due to database size.
 
 ## Similar software
 
@@ -165,5 +402,19 @@ It does not conduct editing of DwC compliant data, nor are we aware of any other
 
 With its automated yet flexible interface to update and validate taxonomic data in compliance with DwC, `dwctaxon` fills a critical gap in taxonomic data software.
 We hope it will become widely used and support the taxonomic infrastructure that undergirds efforts to document and preserve biodiversity.
+
+```{r}
+#| label: dct-options-reset
+#| echo: false
+
+# Reset options to previous
+do.call(dct_options, old_settings)
+```
+
+## Acknowledgements
+
+Members of the Iwasaki Lab (The University of Tokyo) provided helpful comments while the package was in development.
+This research supported in part by Japan Society for the Promotion of Science (Kakenhi) grant no. 16H06279, 22H04925 and 22K15171.
+Thanks to Collin Schwantes and Stephen Formel for reviewing the code and Noam Ross for handling the code review process at ROpenSci.
 
 ## References
