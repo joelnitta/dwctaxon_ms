@@ -64,7 +64,7 @@ Taxonomic names, or taxa, are a fundamental unit of biodiversity [@Janzen2003].
 Darwin Core (DwC) is a data standard for taxonomic and other biodiversity data, and provides a common format for biodiversity databases to interface with each other [@Wieczorek2012].
 Darwin Core has been widely adopted by many databases (e.g., the [Global Biodiversity Information Facility (GBIF)](https://www.gbif.org), [Catalog of Life](https://www.catalogueoflife.org), and [World Flora Online](https://www.worldfloraonline.org)).
 
-Taxonomic data are frequently being updated due to, for example, discovery of new species or revision of existing taxonomic concepts.
+Taxonomic data are frequently updated due to, for example, discovery of new species or revision of existing taxonomic concepts.
 These taxonomic changes can be complicated.
 For example, changing the status of one name to the synonym of another could potentially involve modifying many other names if they are synonyms of the first.
 Because of these properties, maintaining a taxonomic database in compliance with DwC can be onerous and error-prone if done by hand, especially if the database is large.
